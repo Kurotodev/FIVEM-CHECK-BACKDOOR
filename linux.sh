@@ -23,9 +23,11 @@ malwares=(
     ["Malware E"]=$'\x50\x65\x72\x66\x6f\x72\x6d\x48\x74\x74\x70\x52\x65\x71\x75\x65\x73\x74'
     ["Malware F"]="helperServer"
     ["Malware G"]="eGlAnDJByGaVAuyZDaXRzNwsCziWWqkhxierAdUuVyguVhqKsulbKUHiETOTsQTNuVsoCG"
-    ["Malware H"]="https = require(Buffer.from('aHR0cHM=', 'base64').toString())"
-    ["Malware I"]="Buffer.from('aHR0cHM6Ly8xbHMyLm9yZy91c2Vycy9qcy90ZXN0cy5qcw==', 'base64').toString()"
-    ["Malware J"]="const events = ['data', 'end', 'error', 'statusCode', 'global']"
+)
+
+declare -A js_malwares
+js_malwares=(
+    ["Malware H"]="aHR0cHM6Ly8xbHMyLm9yZy91c2Vycy9qcy90ZXN0cy5qcw=="
 )
 
 echo "[MalScanner] Scanning started..."
@@ -33,6 +35,16 @@ echo "[MalScanner] Scanning started..."
 for malware in "${!malwares[@]}"; do
     echo "Checking: $malware"
     files=$(grep -rIl "${malwares[$malware]}" --include=*.lua "$scan_dir")
+    if [ $? -eq 0 ] && [ -n "$files" ]; then
+        malwarefound=1
+        found_files+=("$malware: $files")
+    fi
+    echo "------------------------------------"
+done
+
+for malware in "${!js_malwares[@]}"; do
+    echo "Checking: $malware"
+    files=$(grep -rIl "${js_malwares[$malware]}" --include=*.js "$scan_dir")
     if [ $? -eq 0 ] && [ -n "$files" ]; then
         malwarefound=1
         found_files+=("$malware: $files")
